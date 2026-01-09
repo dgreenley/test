@@ -47,7 +47,7 @@ pull_request_rules:
 
   - name: Conflicted
     conditions:
-      - -conflict
+      - conflict
     actions:
       label:
         add:
@@ -55,7 +55,7 @@ pull_request_rules:
 
   - name: No longer conflicted
     conditions:
-      - conflict
+      - -conflict
     actions:
       label:
         remove:
