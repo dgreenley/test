@@ -3,7 +3,7 @@ shared:
 
   - &merge-delay created-at < 3 hours ago
   - &vulnerability-merge-delay created-at < 1 hour ago
-  - &schedule_time
+  - &scheduled_time
     or:
       - schedule = 08:00-08:15[US/Central]
       - schedule = 16:00-16:15[US/Central]
@@ -11,20 +11,20 @@ shared:
 
   definitions:
 
-  - &mon-wed-fri
+  - &three-days-a-week
     or:
       - schedule = Mon-Mon
       - schedule = Wed-Wed
       - schedule = Fri-Fri
-  - &mergify-active
+  - &active
     and:
       - author = renovate[bot]
       - -closed
       - -label = no-mergify
   - &rebase_conditions
     and:
-      - *mergify-active
-      - *schedule_time
+      - *active
+      - *scheduled_time
       - -label = waiting-for-tests-to-complete
       - -label = queued
   - &ready label = ready-to-merge
@@ -74,7 +74,7 @@ pull_request_rules:
 
   - name: Rebase failing PRs Mon/Wed/Fri
     conditions:
-      - *mon-wed-fri
+      - *three-days-a-week
       - *failing
       - *rebase_conditions
     actions: *rebase
@@ -84,7 +84,7 @@ pull_request_rules:
       - label = waiting-for-tests-to-complete
       - -label = rebase
       - updated-at < 5 minutes ago
-      - not: *schedule_time
+      - not: *scheduled_time
     actions:
       label:
         remove:
@@ -92,10 +92,10 @@ pull_request_rules:
 
   - name: Ready to merge
     conditions:
-      - *mergify-active
+      - *active
       - *merge-delay
       - *scheduled_day
-      - *schedule_time
+      - *scheduled_time
     actions:
       label:
         add:
@@ -105,7 +105,7 @@ queue_rules:
   - name: Mergify
     queue_conditions:
       - and:
-          - *mergify-active
+          - *active
           - -conflict
           - -label = waiting-for-tests-to-complete
           - -label = rebase
