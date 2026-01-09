@@ -51,7 +51,7 @@ pull_request_rules:
     actions:
       label:
         add:
-          - Conflicted
+          - conflicted
 
   - name: No longer conflicted
     conditions:
@@ -59,7 +59,7 @@ pull_request_rules:
     actions:
       label:
         remove:
-          - Conflicted
+          - conflicted
 
   - name: Don't autoMerge
     conditions:
