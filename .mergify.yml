@@ -1,0 +1,121 @@
+shared:
+  variables:
+
+  - &merge-delay created-at < 3 hours ago
+  - &vulnerability-merge-delay created-at < 1 hour ago
+  - &schedule_time
+    or:
+      - schedule = 08:00-08:15[US/Central]
+      - schedule = 18:00-18:15[US/Central]
+  - &scheduled_day schedule = Mon-Sun
+
+  definitions:
+
+  - &mon-wed-fri
+    or:
+      - schedule = Mon-Mon
+      - schedule = Wed-Wed
+      - schedule = Fri-Fri
+  - &mergify-active
+    and:
+      - author = renovate[bot]
+      - -closed
+      - -label = no-mergify
+  - &rebase_conditions
+    and:
+      - *mergify-active
+      - *schedule_time
+      - -label = waiting-for-tests-to-complete
+      - -label = queued
+  - &ready label = ready-to-merge
+  - &failing
+    or:
+      - "#check-failure > 0"
+      - "#check-stale > 0"
+  - &vulnerability
+    and:
+      - label = vulnerability
+      - title ~= (?i)\[SECURITY\] #ignore case
+  - &dequeued label = dequeued
+  - &rebase
+    label:
+        add:
+          - waiting-for-tests-to-complete
+          - rebase
+
+pull_request_rules:
+
+  - name: No longer ready-to-merge
+    conditions:
+      - *ready
+      - closed
+    actions:
+      label:
+        remove:
+          - ready-to-merge
+
+  - name: Rebase everything weekly
+    conditions:
+      - *scheduled_day
+      - *rebase_conditions
+    actions: *rebase
+
+  - name: Rebase dequeued daily
+    conditions:
+      - *dequeued
+      - *rebase_conditions
+    actions: *rebase
+
+  - name: Rebase vulnerabilities daily
+    conditions:
+      - *vulnerability
+      - *rebase_conditions
+    actions: *rebase
+
+  - name: Rebase failing PRs Mon/Wed/Fri
+    conditions:
+      - *mon-wed-fri
+      - *failing
+      - *rebase_conditions
+    actions: *rebase
+
+  - name: Rebase is complete
+    conditions:
+      - label = waiting-for-tests-to-complete
+      - -label = rebase
+      - updated-at < 5 minutes ago
+      - not: *schedule_time
+    actions:
+      label:
+        remove:
+          - waiting-for-tests-to-complete
+
+  - name: Ready to merge
+    conditions:
+      - *mergify-active
+      - *merge-delay
+      - *scheduled_day
+      - *schedule_time
+    actions:
+      label:
+        add:
+          - ready-to-merge
+
+queue_rules:
+  - name: Mergify
+    queue_conditions:
+      - and:
+          - *mergify-active
+          - -conflict
+          - -label = waiting-for-tests-to-complete
+          - -label = rebase
+          - not: *failing
+          - or:
+              - *ready
+              - and:
+                  - *vulnerability
+                  - *vulnerability-merge-delay
+    checks_timeout: 10 m
+    autoqueue: true
+merge_queue:
+  max_parallel_checks: 1
