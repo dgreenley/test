@@ -45,7 +45,23 @@ shared:
 
 pull_request_rules:
 
-  - name: Do not autoMerge
+  - name: Conflicted
+    conditions:
+      - -conflict
+    actions:
+      label:
+        add:
+          - Conflicted
+
+  - name: No longer conflicted
+    conditions:
+      - conflict
+    actions:
+      label:
+        remove:
+          - Conflicted
+
+  - name: Don't autoMerge
     conditions:
       - or:
          - closed
