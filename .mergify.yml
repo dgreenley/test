@@ -20,14 +20,14 @@ shared:
     and:
       - author = renovate[bot]
       - -closed
-      - -label = no-mergify
+      - -label = no-autoMerge
   - &rebase_conditions
     and:
       - *active
       - *scheduled_time
       - -label = waiting-for-tests-to-complete
       - -label = queued
-  - &ready label = ready-to-merge
+  - &ready label = autoMerge
   - &failing
     or:
       - "#check-failure > 0"
@@ -45,14 +45,14 @@ shared:
 
 pull_request_rules:
 
-  - name: No longer ready-to-merge
+  - name: Do not autoMerge
     conditions:
       - *ready
       - closed
     actions:
       label:
         remove:
-          - ready-to-merge
+          - autoMerge
 
   - name: Rebase everything weekly
     conditions:
@@ -99,10 +99,10 @@ pull_request_rules:
     actions:
       label:
         add:
-          - ready-to-merge
+          - autoMerge
 
 queue_rules:
-  - name: Mergify
+  - name: autoMerge
     queue_conditions:
       - and:
           - *active
