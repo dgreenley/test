@@ -47,8 +47,9 @@ pull_request_rules:
 
   - name: Do not autoMerge
     conditions:
-      - *ready
-      - closed
+      - or:
+         - closed
+         - conflict
     actions:
       label:
         remove:
@@ -93,6 +94,7 @@ pull_request_rules:
   - name: Ready to merge
     conditions:
       - *active
+      - -conflict
       - *merge-delay
       - *scheduled_day
       - *scheduled_time
