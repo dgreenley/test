@@ -6,7 +6,7 @@ shared:
   - &schedule_time
     or:
       - schedule = 08:00-08:15[US/Central]
-      - schedule = 18:00-18:15[US/Central]
+      - schedule = 16:00-16:15[US/Central]
   - &scheduled_day schedule = Mon-Sun
 
   definitions:
