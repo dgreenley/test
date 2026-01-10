@@ -65,7 +65,6 @@ pull_request_rules:
     conditions:
       - or:
          - closed
-         - conflict
     actions:
       label:
         remove:
