@@ -25,7 +25,7 @@ shared:
     and:
       - *active
       - *scheduled_time
-      - -label = waiting-for-tests-to-complete
+      - -label = wait-for-tests-to-complete
       - -label = queued
   - &ready label = autoMerge
   - &failing
@@ -40,7 +40,7 @@ shared:
   - &rebase
     label:
         add:
-          - waiting-for-tests-to-complete
+          - wait-for-tests-to-complete
           - rebase
 
 pull_request_rules:
@@ -97,14 +97,14 @@ pull_request_rules:
 
   - name: Rebase is complete
     conditions:
-      - label = waiting-for-tests-to-complete
+      - label = wait-for-tests-to-complete
       - -label = rebase
       - updated-at < 5 minutes ago
       - not: *scheduled_time
     actions:
       label:
         remove:
-          - waiting-for-tests-to-complete
+          - wait-for-tests-to-complete
 
   - name: Ready to merge
     conditions:
@@ -115,6 +115,7 @@ pull_request_rules:
     actions:
       label:
         add:
+          - wait-for-tests-to-complete
           - autoMerge
 
 queue_rules:
@@ -123,7 +124,7 @@ queue_rules:
       - and:
           - *active
           - -conflict
-          - -label = waiting-for-tests-to-complete
+          - -label = wait-for-tests-to-complete
           - -label = rebase
           - not: *failing
           - or:
